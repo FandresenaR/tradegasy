@@ -1,0 +1,31 @@
+android {
+    compileSdkVersion flutter.compileSdkVersion
+
+    defaultConfig {
+        applicationId "com.example.tradegasy"
+        minSdkVersion flutter.minSdkVersion
+        targetSdkVersion flutter.targetSdkVersion
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+        multiDexEnabled true
+    }
+
+    signingConfigs {
+        release {
+            keyAlias 'upload'
+            keyPassword 'your-key-password'
+            storeFile file('c:/Users/Njato/upload-keystore.jks')
+            storePassword 'your-store-password'
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
