@@ -87,14 +87,19 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            // Fix the asset path and add error handling
-            Image.asset(
-              'assets/Logo W.png',
-              width: 28,
-              height: 28,
-              errorBuilder: (context, error, stackTrace) {
-                return const Icon(Icons.currency_bitcoin, color: Colors.white);
-              },
+            // Replace the problematic image with an icon
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: Colors.white24,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.currency_bitcoin,
+                color: Colors.white,
+                size: 18,
+              ),
             ),
             const SizedBox(width: 8),
             const Text('TradeGasy'),

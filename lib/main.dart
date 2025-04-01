@@ -58,24 +58,19 @@ class TradeGasyApp extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Fix the asset path - remove the 'assets/' prefix
-                    Image.asset(
-                      'assets/Logo W.png',
+                    // Remove the problematic image and replace with an icon
+                    Container(
                       width: 120,
                       height: 120,
-                      errorBuilder: (context, error, stackTrace) {
-                        // Show error widget if logo fails to load
-                        return Container(
-                          width: 120,
-                          height: 120,
-                          color: Colors.grey.shade200,
-                          child: const Icon(
-                            Icons.broken_image,
-                            size: 60,
-                            color: Colors.grey,
-                          ),
-                        );
-                      },
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2E7D32),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.currency_bitcoin,
+                        size: 60,
+                        color: Colors.white,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     const CircularProgressIndicator(),

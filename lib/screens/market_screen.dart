@@ -4,6 +4,7 @@ import 'package:tradegasy/models/binance_models.dart';
 import 'package:tradegasy/services/binance_service.dart';
 import 'package:tradegasy/services/openrouter_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/services.dart';
 
 class MarketScreen extends StatefulWidget {
   const MarketScreen({super.key});
@@ -168,11 +169,36 @@ class _MarketScreenState extends State<MarketScreen> {
                   children: [
                     _buildPairSelector(),
                     _buildIntervalSelector(),
-                    SizedBox(
-                      height: 220, // Reduced height to prevent overflow
-                      child: _buildCandlestickChart(),
+                    Expanded(
+                      child: DefaultTabController(
+                        length: 2,
+                        child: Column(
+                          children: [
+                            TabBar(
+                              labelColor: Theme.of(context).colorScheme.primary,
+                              tabs: const [
+                                Tab(
+                                  icon: Icon(Icons.candlestick_chart),
+                                  text: "Chart",
+                                ),
+                                Tab(
+                                  icon: Icon(Icons.smart_toy),
+                                  text: "AI Analysis",
+                                ),
+                              ],
+                            ),
+                            Expanded(
+                              child: TabBarView(
+                                children: [
+                                  _buildCandlestickChart(),
+                                  _buildAIAnalysisSection(),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    Expanded(child: _buildAIAnalysisSection()),
                   ],
                 ),
               ),
@@ -270,7 +296,6 @@ class _MarketScreenState extends State<MarketScreen> {
           final interval = intervals[index];
           final isSelected = interval == _selectedInterval;
 
-          // Calculate display text - use short form for small screens
           final text =
               MediaQuery.of(context).size.width < 600
                   ? interval
@@ -284,9 +309,7 @@ class _MarketScreenState extends State<MarketScreen> {
               _loadCandles();
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-              ), // Reduced padding
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               margin: const EdgeInsets.only(left: 8),
               decoration: BoxDecoration(
                 color:
@@ -310,7 +333,7 @@ class _MarketScreenState extends State<MarketScreen> {
                           ? theme.colorScheme.onPrimary
                           : theme.colorScheme.onSurface,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  fontSize: 12, // Smaller font size
+                  fontSize: 12,
                 ),
               ),
             ),
@@ -337,89 +360,63 @@ class _MarketScreenState extends State<MarketScreen> {
           );
         }).toList();
 
-    return Container(
-      height: 300,
-      padding: const EdgeInsets.symmetric(vertical: 8),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
       child: candlesticks.Candlesticks(candles: formattedCandles),
     );
   }
 
   Widget _buildAIAnalysisSection() {
-    return Column(
-      mainAxisSize: MainAxisSize.min, // Use minimum space needed
-      children: [
-        // Title - make it more compact
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.smart_toy,
-                color: Theme.of(context).colorScheme.primary,
-                size: 18, // Smaller icon
-              ),
-              const SizedBox(width: 4), // Reduced spacing
-              Text(
-                'DeepSeek R1 Market Analysis',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14, // Smaller text size
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-            ],
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: [
+          Expanded(
+            child:
+                _chatHistory.isEmpty
+                    ? _buildEmptyAnalysisState()
+                    : _buildChatMessages(),
           ),
-        ),
+          _buildChatInput(),
+        ],
+      ),
+    );
+  }
 
-        // Chat area - must be expandable and scrollable
-        Expanded(
-          child:
-              _chatHistory.isEmpty
-                  ? Center(
-                    child: ListView(
-                      // Use ListView instead of Column to make it scrollable
-                      shrinkWrap: true,
-                      children: [
-                        Icon(
-                          Icons.chat_bubble_outline,
-                          size: 40, // Smaller icon
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withOpacity(0.3),
-                        ),
-                        const SizedBox(height: 8), // Less spacing
-                        Text(
-                          'Ask DeepSeek R1 about the current chart',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withOpacity(0.6),
-                            fontSize: 14, // Smaller text
-                          ),
-                        ),
-                        const SizedBox(height: 4), // Less spacing
-                        Text(
-                          'Example: "What\'s the trend for $_selectedPair?"',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withOpacity(0.4),
-                            fontSize: 12, // Smaller text
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                  : _buildChatMessages(),
-        ),
-
-        // Input section (keep this as is)
-        _buildChatInput(),
-      ],
+  Widget _buildEmptyAnalysisState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.chat_bubble_outline,
+            size: 48,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Ask DeepSeek R1 about the current chart',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            child: Text(
+              'Example: "What\'s the trend for $_selectedPair?" or "Identify support and resistance levels"',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+                fontSize: 14,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -428,7 +425,6 @@ class _MarketScreenState extends State<MarketScreen> {
       initialScrollOffset: 999999,
     );
 
-    // Scroll to bottom after frame is rendered
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (scrollController.hasClients) {
         scrollController.animateTo(
@@ -440,12 +436,10 @@ class _MarketScreenState extends State<MarketScreen> {
     });
 
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       itemCount: _chatHistory.length,
       shrinkWrap: false,
-      // This key forces the list to rebuild when the conversation changes
       key: Key('chat_messages_${_chatHistory.length}'),
-      // Use the scrollController defined above
       controller: scrollController,
       itemBuilder: (context, index) {
         final isUser = index % 2 == 0;
@@ -479,22 +473,54 @@ class _MarketScreenState extends State<MarketScreen> {
                       : null,
             ),
             constraints: BoxConstraints(
-              maxWidth:
-                  MediaQuery.of(context).size.width *
-                  0.85, // Increased from 0.75 to 0.85
+              maxWidth: MediaQuery.of(context).size.width * 0.9,
             ),
-            child: SelectableText(
-              // Changed from Text to SelectableText to allow copying
-              message,
-              style: TextStyle(
-                color:
-                    isUser
-                        ? Theme.of(context).colorScheme.onPrimary
-                        : Theme.of(context).colorScheme.onSurface,
-                height: 1.4, // Better line height for readability
-              ),
-              // Make sure text wraps properly
-              textAlign: isUser ? TextAlign.right : TextAlign.left,
+            child: Column(
+              crossAxisAlignment:
+                  isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              children: [
+                SelectableText(
+                  message,
+                  style: TextStyle(
+                    color:
+                        isUser
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : Theme.of(context).colorScheme.onSurface,
+                    height: 1.4,
+                  ),
+                  textAlign: isUser ? TextAlign.right : TextAlign.left,
+                ),
+                if (!isUser) ...[
+                  SizedBox(height: 4),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.copy,
+                        size: 14,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.5),
+                      ),
+                      SizedBox(width: 4),
+                      GestureDetector(
+                        onTap: () {
+                          _copyToClipboard(message);
+                        },
+                        child: Text(
+                          "Copy",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.5),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
             ),
           ),
         );
@@ -590,7 +616,6 @@ class _MarketScreenState extends State<MarketScreen> {
     }
 
     try {
-      // Check API key presence
       final apiKey = dotenv.env['OPENROUTER_API_KEY'];
       if (apiKey == null || apiKey.isEmpty) {
         setState(() {
@@ -615,12 +640,9 @@ class _MarketScreenState extends State<MarketScreen> {
         _isAnalyzing = false;
       });
 
-      // Ensure message display updates completely by triggering a second setState
       if (mounted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          setState(() {
-            // Force rebuild to ensure message is fully displayed
-          });
+          setState(() {});
         });
       }
     } catch (e) {
@@ -634,10 +656,16 @@ class _MarketScreenState extends State<MarketScreen> {
 
     if (mounted) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() {
-          // This empty setState forces the ListView to rebuild
-        });
+        setState(() {});
       });
     }
+  }
+
+  void _copyToClipboard(String text) {
+    Clipboard.setData(ClipboardData(text: text)).then((_) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Analysis copied to clipboard')));
+    });
   }
 }

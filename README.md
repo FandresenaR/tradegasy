@@ -1,6 +1,6 @@
 # TradeGasy
 
-![TradeGasy](assets/Logo W.png)
+*A Smart Trading Assistant powered by AI*
 
 TradeGasy is a Flutter-based mobile and web application designed to help Malagasy traders and international users analyze cryptocurrency markets with AI assistance. The app leverages the power of AI language models to provide meaningful market analysis and trading signals.
 
