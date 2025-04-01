@@ -58,6 +58,26 @@ class TradeGasyApp extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // Fix the asset path - remove the 'assets/' prefix
+                    Image.asset(
+                      'assets/Logo W.png',
+                      width: 120,
+                      height: 120,
+                      errorBuilder: (context, error, stackTrace) {
+                        // Show error widget if logo fails to load
+                        return Container(
+                          width: 120,
+                          height: 120,
+                          color: Colors.grey.shade200,
+                          child: const Icon(
+                            Icons.broken_image,
+                            size: 60,
+                            color: Colors.grey,
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 16),
                     const CircularProgressIndicator(),
                     const SizedBox(height: 16),
                     Text(

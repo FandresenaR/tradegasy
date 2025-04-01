@@ -85,7 +85,21 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('TradeGasy'),
+        title: Row(
+          children: [
+            // Fix the asset path and add error handling
+            Image.asset(
+              'assets/Logo W.png',
+              width: 28,
+              height: 28,
+              errorBuilder: (context, error, stackTrace) {
+                return const Icon(Icons.currency_bitcoin, color: Colors.white);
+              },
+            ),
+            const SizedBox(width: 8),
+            const Text('TradeGasy'),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
