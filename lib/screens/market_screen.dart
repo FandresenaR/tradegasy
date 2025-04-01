@@ -424,15 +424,29 @@ class _MarketScreenState extends State<MarketScreen> {
   }
 
   Widget _buildChatMessages() {
-    // Make sure the ListView scrolls to bottom whenever a new message is added
+    final ScrollController scrollController = ScrollController(
+      initialScrollOffset: 999999,
+    );
+
+    // Scroll to bottom after frame is rendered
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (scrollController.hasClients) {
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
       itemCount: _chatHistory.length,
       shrinkWrap: false,
       // This key forces the list to rebuild when the conversation changes
       key: Key('chat_messages_${_chatHistory.length}'),
-      // Automatically scroll to the bottom when new messages are added
-      controller: ScrollController(initialScrollOffset: 999999),
+      // Use the scrollController defined above
+      controller: scrollController,
       itemBuilder: (context, index) {
         final isUser = index % 2 == 0;
         final message = _chatHistory[index];
@@ -465,9 +479,12 @@ class _MarketScreenState extends State<MarketScreen> {
                       : null,
             ),
             constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.75,
+              maxWidth:
+                  MediaQuery.of(context).size.width *
+                  0.85, // Increased from 0.75 to 0.85
             ),
-            child: Text(
+            child: SelectableText(
+              // Changed from Text to SelectableText to allow copying
               message,
               style: TextStyle(
                 color:
@@ -477,7 +494,7 @@ class _MarketScreenState extends State<MarketScreen> {
                 height: 1.4, // Better line height for readability
               ),
               // Make sure text wraps properly
-              softWrap: true,
+              textAlign: isUser ? TextAlign.right : TextAlign.left,
             ),
           ),
         );
@@ -597,6 +614,15 @@ class _MarketScreenState extends State<MarketScreen> {
         _chatHistory.add(response);
         _isAnalyzing = false;
       });
+
+      // Ensure message display updates completely by triggering a second setState
+      if (mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          setState(() {
+            // Force rebuild to ensure message is fully displayed
+          });
+        });
+      }
     } catch (e) {
       setState(() {
         _chatHistory.add(

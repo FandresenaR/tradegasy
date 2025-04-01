@@ -6,8 +6,6 @@ import 'package:tradegasy/screens/signal_detail_screen.dart';
 import 'package:tradegasy/services/signal_generator.dart';
 import 'package:tradegasy/services/signal_service.dart';
 import 'package:tradegasy/widgets/signal_card.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:tradegasy/utils/constants.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

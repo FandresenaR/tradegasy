@@ -25,9 +25,6 @@ class OpenRouterService {
         _apiKey = AppConstants.OPENROUTER_API_KEY;
       }
 
-      print(
-        'OpenRouter initialized with API key: ${_apiKey!.substring(0, 10)}...',
-      );
       _initialized = true;
     } catch (e) {
       print('Error initializing OpenRouterService: $e');
@@ -158,7 +155,8 @@ Current analysis for $symbol over $interval timeframe:
           "anthropic/claude-3-haiku", // Use Claude as fallback (more stable than deepseek)
       "messages": messages,
       "temperature": 0.7,
-      "max_tokens": 400,
+      "max_tokens":
+          1000, // Increased from 400 to 1000 to handle longer responses
     };
 
     try {
@@ -169,7 +167,9 @@ Current analysis for $symbol over $interval timeframe:
             headers: headers,
             body: jsonEncode(payload),
           )
-          .timeout(const Duration(seconds: 20));
+          .timeout(
+            const Duration(seconds: 30),
+          ); // Increased timeout for longer responses
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);

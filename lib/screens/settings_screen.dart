@@ -141,6 +141,8 @@ class _ProfileCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          mainAxisSize:
+              MainAxisSize.min, // Important: constrains Column's height
           children: [
             const CircleAvatar(
               radius: 40,
@@ -148,25 +150,15 @@ class _ProfileCard extends StatelessWidget {
               child: Icon(Icons.person, size: 48, color: Colors.white),
             ),
             const SizedBox(height: 16),
-            // Wrap text with Flexible to prevent overflow
-            Flexible(
-              child: Text(
-                'Trader Account',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
+            // Replace Flexible with a simple Text with ellipsis
+            Text(
+              'Trader Account',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 4),
-            // Wrap email with Flexible
-            Flexible(
-              child: Text(
-                'trader@example.com',
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
+            // Replace Flexible with a simple Text with ellipsis
+            Text('trader@example.com', overflow: TextOverflow.ellipsis),
             const SizedBox(height: 16),
             OutlinedButton(
               onPressed: () {
